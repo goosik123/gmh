@@ -1,2 +1,3 @@
 Gooseyn_Gasanov:admin
-Onesecond_Bossio:123123
+Onesecond_Bossio:admin2
+Glock_Miracle:admin3
