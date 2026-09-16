@@ -1,7 +1,3 @@
 Gooseyn_Gasanov:admin
-[26]Gooseyn_Gasanov:admin
-[26]Onesecond_Bossio:admin2
-Onesecond_Bossio:admin2
-Glock_Miracle:admin3
-[12]Glock_Miracle:admin3
-Abduelam_Berkyt:admins
+Onesecond_Bossio:admintest
+Glock_Miracle:test
