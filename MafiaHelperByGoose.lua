@@ -28,7 +28,7 @@ local AVATAR_FILE = mhg_dir .. "\\mhg_avatar.jpg"
 local CONFIG_FILE = "MHG\\MHG_session.ini"
 
 -- === Auto-update (GitHub) ===
-local SCRIPT_VERSION = "1.0.0"
+local SCRIPT_VERSION = "1.0.1"
 local VERSION_URL = "https://raw.githubusercontent.com/goosik123/gmh/main/version.txt"
 local SCRIPT_URL = "https://raw.githubusercontent.com/goosik123/gmh/main/MafiaHelperByGoose.lua"
 
@@ -64,7 +64,7 @@ local input_anim_w = 0.0
 
 local themes = {
     [1] = {
-        name = u8"Ôèîëåòîâûé",
+        name = u8"Ã”Ã¨Ã®Ã«Ã¥Ã²Ã®Ã¢Ã»Ã©",
         text = imgui.ImVec4(0.78, 0.55, 1.00, 1.00),
         text_muted = imgui.ImVec4(0.55, 0.40, 0.75, 0.75),
         accent = {0.78, 0.55, 1.00},
@@ -76,7 +76,7 @@ local themes = {
         bor_act = {0.78, 0.45, 1.00}
     },
     [2] = {
-        name = u8"Ñåðûé",
+        name = u8"Ã‘Ã¥Ã°Ã»Ã©",
         text = imgui.ImVec4(0.95, 0.95, 0.95, 1.00),
         text_muted = imgui.ImVec4(0.70, 0.70, 0.70, 0.75),
         accent = {0.95, 0.95, 0.95},
@@ -88,7 +88,7 @@ local themes = {
         bor_act = {0.80, 0.80, 0.80}
     },
     [3] = {
-        name = u8"Áèðþçîâûé",
+        name = u8"ÃÃ¨Ã°Ã¾Ã§Ã®Ã¢Ã»Ã©",
         text = imgui.ImVec4(0.25, 0.88, 0.82, 1.00),
         text_muted = imgui.ImVec4(0.20, 0.60, 0.55, 0.75),
         accent = {0.25, 0.88, 0.82},
@@ -100,7 +100,7 @@ local themes = {
         bor_act = {0.25, 0.75, 0.70}
     },
     [4] = {
-        name = u8"Çåë¸íûé",
+        name = u8"Ã‡Ã¥Ã«Â¸Ã­Ã»Ã©",
         text = imgui.ImVec4(0.40, 0.90, 0.40, 1.00),
         text_muted = imgui.ImVec4(0.30, 0.60, 0.30, 0.75),
         accent = {0.40, 0.90, 0.40},
@@ -112,7 +112,7 @@ local themes = {
         bor_act = {0.40, 0.80, 0.40}
     },
     [5] = {
-        name = u8"Æ¸ëòûé",
+        name = u8"Ã†Â¸Ã«Ã²Ã»Ã©",
         text = imgui.ImVec4(1.00, 0.82, 0.20, 1.00),
         text_muted = imgui.ImVec4(0.70, 0.58, 0.15, 0.75),
         accent = {1.00, 0.82, 0.20},
@@ -124,7 +124,7 @@ local themes = {
         bor_act = {1.00, 0.80, 0.20}
     },
     [6] = {
-        name = u8"Êðàñíûé",
+        name = u8"ÃŠÃ°Ã Ã±Ã­Ã»Ã©",
         text = imgui.ImVec4(1.00, 0.35, 0.35, 1.00),
         text_muted = imgui.ImVec4(0.70, 0.25, 0.25, 0.75),
         accent = {1.00, 0.35, 0.35},
@@ -145,7 +145,7 @@ local auth = {
     show = false,
     alpha = 0.0,
     password = imgui.new.char[256](),
-    status = u8'Îæèäàíèå...',
+    status = u8'ÃŽÃ¦Ã¨Ã¤Ã Ã­Ã¨Ã¥...',
     accounts = {},
     account_map = {},
     loaded = false,
@@ -248,9 +248,9 @@ local shake_timer = 0.0
 
 local function apply_asp(value)
     if not value then value = 1.0 end
-    -- îñíîâíîé àäðåñ àñïåêòà (ïîñëå NOP ïàò÷åé â main)
+    -- Ã®Ã±Ã­Ã®Ã¢Ã­Ã®Ã© Ã Ã¤Ã°Ã¥Ã± Ã Ã±Ã¯Ã¥ÃªÃ²Ã  (Ã¯Ã®Ã±Ã«Ã¥ NOP Ã¯Ã Ã²Ã·Ã¥Ã© Ã¢ main)
     memory.setfloat(0xC3EFA4, value, true)
-    -- äîï. àäðåñà, êîòîðûå íåêîòîðûå êëèåíòû/ôèêñû ïåðåçàïèñûâàþò
+    -- Ã¤Ã®Ã¯. Ã Ã¤Ã°Ã¥Ã±Ã , ÃªÃ®Ã²Ã®Ã°Ã»Ã¥ Ã­Ã¥ÃªÃ®Ã²Ã®Ã°Ã»Ã¥ ÃªÃ«Ã¨Ã¥Ã­Ã²Ã»/Ã´Ã¨ÃªÃ±Ã» Ã¯Ã¥Ã°Ã¥Ã§Ã Ã¯Ã¨Ã±Ã»Ã¢Ã Ã¾Ã²
     pcall(function()
         memory.setfloat(0xC17044, value, true)
     end)
@@ -606,7 +606,7 @@ function auth.draw()
         if auth.stage == 'idle' then
             imgui.Dummy(imgui.ImVec2(0, 16))
             imgui.SetWindowFontScale(1.25)
-            local title = u8'Àâòîðèçàöèÿ'
+            local title = u8'Ã€Ã¢Ã²Ã®Ã°Ã¨Ã§Ã Ã¶Ã¨Ã¿'
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(title).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * current_stage_alpha), title)
             imgui.SetWindowFontScale(1.0)
@@ -617,7 +617,7 @@ function auth.draw()
             imgui.PopItemWidth()
 
             imgui.Dummy(imgui.ImVec2(0, 14))
-            local btn_text = auth.loaded and u8'Âîéòè' or u8'Çàãðóçêà...'
+            local btn_text = auth.loaded and u8'Ã‚Ã®Ã©Ã²Ã¨' or u8'Ã‡Ã Ã£Ã°Ã³Ã§ÃªÃ ...'
             local base_size = imgui.ImVec2(240, 40)
             
             local shake_offset_x = 0.0
@@ -687,7 +687,7 @@ function auth.draw()
 
             imgui.SetCursorPosY(195)
             imgui.SetWindowFontScale(0.82)
-            local info_str = string.format("%s %s  |  Caps Lock: %s", u8'ßçûê:', get_keyboard_layout_name(), is_caps_active() and u8'Âêë' or u8'Âûêë')
+            local info_str = string.format("%s %s  |  Caps Lock: %s", u8'ÃŸÃ§Ã»Ãª:', get_keyboard_layout_name(), is_caps_active() and u8'Ã‚ÃªÃ«' or u8'Ã‚Ã»ÃªÃ«')
             local info_w = imgui.CalcTextSize(info_str).x
             imgui.SetCursorPosX((340 - info_w) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * current_stage_alpha), info_str)
@@ -700,7 +700,7 @@ function auth.draw()
             draw_spinner(draw_list, spinner_center, 18.0, 3.0, spinner_color)
             imgui.Dummy(imgui.ImVec2(0, 30))
             imgui.SetWindowFontScale(1.1)
-            local txt = u8'Ïðîâåðêà àêêàóíòà...'
+            local txt = u8'ÃÃ°Ã®Ã¢Ã¥Ã°ÃªÃ  Ã ÃªÃªÃ Ã³Ã­Ã²Ã ...'
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * current_stage_alpha), txt)
             imgui.SetWindowFontScale(1.0)
@@ -724,7 +724,7 @@ function auth.draw()
 
             imgui.Dummy(imgui.ImVec2(0, 30))
             imgui.SetWindowFontScale(1.1)
-            local txt = u8'Óñïåøíî!'
+            local txt = u8'Ã“Ã±Ã¯Ã¥Ã¸Ã­Ã®!'
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * current_stage_alpha), txt)
             imgui.SetWindowFontScale(1.0)
@@ -754,9 +754,9 @@ function menu.draw()
     local nick_sz = imgui.CalcTextSize(current_user_nick).x
     
     local tabs = {
-        { name = u8"Îñíîâíîå" },
-        { name = u8"Äîïîëíèòåëüíî" },
-        { name = u8"Íàñòðîéêè" }
+        { name = u8"ÃŽÃ±Ã­Ã®Ã¢Ã­Ã®Ã¥" },
+        { name = u8"Ã„Ã®Ã¯Ã®Ã«Ã­Ã¨Ã²Ã¥Ã«Ã¼Ã­Ã®" },
+        { name = u8"ÃÃ Ã±Ã²Ã°Ã®Ã©ÃªÃ¨" }
     }
     
     local tab_btn_w = 120
@@ -852,7 +852,7 @@ function menu.draw()
                 local fill_p = tab_fill_progress[i]
                 local hover_p = tab_hover_alphas[i]
 
-                local effects_enabled = true -- àíèìàöèÿ âêëàäîê âñåãäà âêëþ÷åíà
+                local effects_enabled = true -- Ã Ã­Ã¨Ã¬Ã Ã¶Ã¨Ã¿ Ã¢ÃªÃ«Ã Ã¤Ã®Ãª Ã¢Ã±Ã¥Ã£Ã¤Ã  Ã¢ÃªÃ«Ã¾Ã·Ã¥Ã­Ã 
 
                 local t_bg_r = lerp(lerp(t.bg_idle[1], t.bg_hover[1], hover_p), t.bg_act[1], fill_p)
                 local t_bg_g = lerp(lerp(t.bg_idle[2], t.bg_hover[2], hover_p), t.bg_act[2], fill_p)
@@ -996,9 +996,9 @@ function menu.draw()
 
                 local eye_text
                 if show_avatar_url then
-                    eye_text = u8"Ñêðûòü"
+                    eye_text = u8"Ã‘ÃªÃ°Ã»Ã²Ã¼"
                 else
-                    eye_text = has_link_inserted and u8"Èçìåíèòü" or u8"Àâàòàð"
+                    eye_text = has_link_inserted and u8"ÃˆÃ§Ã¬Ã¥Ã­Ã¨Ã²Ã¼" or u8"Ã€Ã¢Ã Ã²Ã Ã°"
                 end
 
                 local eyt_sz = imgui.CalcTextSize(eye_text)
@@ -1067,7 +1067,7 @@ function menu.draw()
 
                 local lo_min = p_logout
                 local lo_max = imgui.ImVec2(p_logout.x + logout_btn_sz.x, p_logout.y + logout_btn_sz.y)
-                -- ßðêàÿ êíîïêà âûõîäà (êðàñíûé àêöåíò)
+                -- ÃŸÃ°ÃªÃ Ã¿ ÃªÃ­Ã®Ã¯ÃªÃ  Ã¢Ã»ÃµÃ®Ã¤Ã  (ÃªÃ°Ã Ã±Ã­Ã»Ã© Ã ÃªÃ¶Ã¥Ã­Ã²)
                 local lo_bg_r = lerp(0.55, 0.90, logout_hover_alpha)
                 local lo_bg_g = lerp(0.12, 0.18, logout_hover_alpha)
                 local lo_bg_b = lerp(0.12, 0.18, logout_hover_alpha)
@@ -1083,7 +1083,7 @@ function menu.draw()
                 draw_list:AddRectFilled(lo_min, lo_max, lo_bg_col, 6.0)
                 draw_list:AddRect(lo_min, lo_max, lo_bor_col, 6.0, 15, 1.4)
 
-                local logout_text = u8"Âûéòè"
+                local logout_text = u8"Ã‚Ã»Ã©Ã²Ã¨"
                 local lot_sz = imgui.CalcTextSize(logout_text)
                 local lot_pos = imgui.ImVec2(lo_min.x + (logout_btn_sz.x - lot_sz.x) / 2, lo_min.y + (logout_btn_sz.y - lot_sz.y) / 2)
                 local lot_col = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(1.00, 0.92, 0.92, lerp(0.85, 1.00, logout_hover_alpha) * current_content_alpha))
@@ -1101,7 +1101,7 @@ function menu.draw()
                     imgui.PushStyleColor(imgui.Col.FrameBgActive, imgui.ImVec4(t.bg_act[1], t.bg_act[2], t.bg_act[3], 0.50 * current_content_alpha))
                     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(t.text.x, t.text.y, t.text.z, 0.85 * current_content_alpha))
 
-                    imgui.InputTextWithHint("##avatar_url_btm", u8"Âñòàâü ññûëêó íà àâàòàð...", avatar_url_buf, ffi.sizeof(avatar_url_buf))
+                    imgui.InputTextWithHint("##avatar_url_btm", u8"Ã‚Ã±Ã²Ã Ã¢Ã¼ Ã±Ã±Ã»Ã«ÃªÃ³ Ã­Ã  Ã Ã¢Ã Ã²Ã Ã°...", avatar_url_buf, ffi.sizeof(avatar_url_buf))
                     
                     if session_cfg.settings.custom_avatar_url ~= current_input_text then
                         session_cfg.settings.custom_avatar_url = current_input_text
@@ -1116,7 +1116,7 @@ function menu.draw()
                     imgui.SameLine(0, 6)
 
                     local has_text_in_input = current_input_text ~= ""
-                    local action_btn_text = has_text_in_input and u8"Î÷èñòèòü" or u8"Îáíîâèòü"
+                    local action_btn_text = has_text_in_input and u8"ÃŽÃ·Ã¨Ã±Ã²Ã¨Ã²Ã¼" or u8"ÃŽÃ¡Ã­Ã®Ã¢Ã¨Ã²Ã¼"
                     
                     local p_action = imgui.GetCursorScreenPos()
                     local action_btn_sz = imgui.ImVec2(75, 24)
@@ -1166,9 +1166,9 @@ function menu.draw()
         end
 
         local tabs_titles = {
-            { name = u8"Îñíîâíîå" },
-            { name = u8"Äîïîëíèòåëüíî" },
-            { name = u8"Íàñòðîéêè" }
+            { name = u8"ÃŽÃ±Ã­Ã®Ã¢Ã­Ã®Ã¥" },
+            { name = u8"Ã„Ã®Ã¯Ã®Ã«Ã­Ã¨Ã²Ã¥Ã«Ã¼Ã­Ã®" },
+            { name = u8"ÃÃ Ã±Ã²Ã°Ã®Ã©ÃªÃ¨" }
         }
         
         local title_alpha = 1.0 - menu.sidebar_alpha
@@ -1191,7 +1191,7 @@ function menu.draw()
         imgui.BeginChild("##content_area", imgui.ImVec2(size.x - 50, content_area_h), false, imgui.WindowFlags.NoScrollbar)
         
         if menu.current_tab == 1 then
-            imgui.TextColored(t.text_muted, u8"Äîáðî ïîæàëîâàòü â MHG. Çäåñü ïîÿâÿòñÿ áûñòðûå äåéñòâèÿ è ñòàòóñ.")
+            imgui.TextColored(t.text_muted, u8"Ã„Ã®Ã¡Ã°Ã® Ã¯Ã®Ã¦Ã Ã«Ã®Ã¢Ã Ã²Ã¼ Ã¢ MHG. Ã‡Ã¤Ã¥Ã±Ã¼ Ã¯Ã®Ã¿Ã¢Ã¿Ã²Ã±Ã¿ Ã¡Ã»Ã±Ã²Ã°Ã»Ã¥ Ã¤Ã¥Ã©Ã±Ã²Ã¢Ã¨Ã¿ Ã¨ Ã±Ã²Ã Ã²Ã³Ã±.")
         elseif menu.current_tab == 2 then
             imgui.TextColored(t.text_muted, u8"ASP:")
             imgui.Dummy(imgui.ImVec2(0, 5))
@@ -1274,13 +1274,13 @@ function menu.draw()
                 draw_list:AddRectFilled(p_reset, imgui.ImVec2(p_reset.x + reset_btn_size.x, p_reset.y + reset_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(r_bg_r, r_bg_g, r_bg_b, r_bg_a * menu.alpha)), 6.0)
                 draw_list:AddRect(p_reset, imgui.ImVec2(p_reset.x + reset_btn_size.x, p_reset.y + reset_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(r_bor_r, r_bor_g, r_bor_b, r_bor_a * menu.alpha)), 6.0, 15, 1.2)
 
-                local reset_txt = u8"Ñáðîñ"
+                local reset_txt = u8"Ã‘Ã¡Ã°Ã®Ã±"
                 local r_txt_sz = imgui.CalcTextSize(reset_txt)
                 local r_txt_pos = imgui.ImVec2(p_reset.x + (reset_btn_size.x - r_txt_sz.x) / 2, p_reset.y + (reset_btn_size.y - r_txt_sz.y) / 2)
                 draw_list:AddText(r_txt_pos, imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.text.x, t.text.y, t.text.z, lerp(0.65, 1.00, reset_btn_hover_alpha) * menu.alpha)), reset_txt)
             end
         elseif menu.current_tab == 3 then
-            imgui.TextColored(t.text_muted, u8"Òåìà îôîðìëåíèÿ:")
+            imgui.TextColored(t.text_muted, u8"Ã’Ã¥Ã¬Ã  Ã®Ã´Ã®Ã°Ã¬Ã«Ã¥Ã­Ã¨Ã¿:")
             imgui.Dummy(imgui.ImVec2(0, 5))
 
             local theme_btn_size = imgui.ImVec2(218, 32)
@@ -1337,7 +1337,7 @@ function menu.draw()
             end
             imgui.Dummy(imgui.ImVec2(0, 10))
 
-            imgui.TextColored(t.text_muted, u8"Ýôôåêòû èíòåðôåéñà:")
+            imgui.TextColored(t.text_muted, u8"ÃÃ´Ã´Ã¥ÃªÃ²Ã» Ã¨Ã­Ã²Ã¥Ã°Ã´Ã¥Ã©Ã±Ã :")
             imgui.Dummy(imgui.ImVec2(0, 5))
 
             local settings_btn_size = imgui.ImVec2(218, 32)
@@ -1376,7 +1376,7 @@ function menu.draw()
             draw_list:AddRectFilled(c_min, c_max, c_bg_col, 6.0)
             draw_list:AddRect(c_min, c_max, c_bor_col, 6.0, 15, 1.2)
 
-            local status_str = u8"×àñòèöû"
+            local status_str = u8"Ã—Ã Ã±Ã²Ã¨Ã¶Ã»"
             local chk_txt_sz = imgui.CalcTextSize(status_str)
             local chk_txt_pos = imgui.ImVec2(c_min.x + (settings_btn_size.x - chk_txt_sz.x) / 2, c_min.y + (settings_btn_size.y - chk_txt_sz.y) / 2)
             local chk_text_col_val = lerp(lerp(0.65, 0.85, checkbox_hover_alpha), 1.00, chk_fill_val)
@@ -1385,7 +1385,7 @@ function menu.draw()
 
             imgui.SameLine(0, settings_spacing_x)
 
-            -- Watermark (âìåñòî ïåðåêëþ÷àòåëÿ àíèìàöèè âêëàäîê)
+            -- Watermark (Ã¢Ã¬Ã¥Ã±Ã²Ã® Ã¯Ã¥Ã°Ã¥ÃªÃ«Ã¾Ã·Ã Ã²Ã¥Ã«Ã¿ Ã Ã­Ã¨Ã¬Ã Ã¶Ã¨Ã¨ Ã¢ÃªÃ«Ã Ã¤Ã®Ãª)
             local p_wmset = imgui.GetCursorScreenPos()
             if imgui.InvisibleButton("##custom_watermark_chk", settings_btn_size) then
                 session_cfg.settings.watermark_enabled = not session_cfg.settings.watermark_enabled
@@ -1449,7 +1449,7 @@ function menu.draw()
             draw_list:AddRectFilled(p_glow, imgui.ImVec2(p_glow.x + settings_btn_size.x, p_glow.y + settings_btn_size.y), g_bg_col, 6.0)
             draw_list:AddRect(p_glow, imgui.ImVec2(p_glow.x + settings_btn_size.x, p_glow.y + settings_btn_size.y), g_bor_col, 6.0, 15, 1.2)
 
-            local glow_status_str = u8"Ñâå÷åíèå îêíà"
+            local glow_status_str = u8"Ã‘Ã¢Ã¥Ã·Ã¥Ã­Ã¨Ã¥ Ã®ÃªÃ­Ã "
             local glow_txt_sz = imgui.CalcTextSize(glow_status_str)
             local glow_txt_pos = imgui.ImVec2(p_glow.x + (settings_btn_size.x - glow_txt_sz.x) / 2, p_glow.y + (settings_btn_size.y - glow_txt_sz.y) / 2)
             local glow_text_val = lerp(lerp(0.65, 0.85, glow_btn_hover_alpha), 1.00, glow_fill_val)
@@ -1469,7 +1469,7 @@ end
 
 -- === Watermark overlay ===
 
--- packet loss (ïîêàçûâàåòñÿ â WM òîëüêî ïðè çíà÷åíèè >= 1)
+-- packet loss (Ã¯Ã®ÃªÃ Ã§Ã»Ã¢Ã Ã¥Ã²Ã±Ã¿ Ã¢ WM Ã²Ã®Ã«Ã¼ÃªÃ® Ã¯Ã°Ã¨ Ã§Ã­Ã Ã·Ã¥Ã­Ã¨Ã¨ >= 1)
 local function get_packet_loss()
     if not isSampAvailable() then return 0 end
     local res, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
@@ -1495,15 +1495,15 @@ local function get_packet_loss()
         return math.floor(val + 0.5)
     end
 
-    -- fallback: RakNet statistics (packetlossLastSecond), åñëè äîñòóïåí èíòåðôåéñ
+    -- fallback: RakNet statistics (packetlossLastSecond), Ã¥Ã±Ã«Ã¨ Ã¤Ã®Ã±Ã²Ã³Ã¯Ã¥Ã­ Ã¨Ã­Ã²Ã¥Ã°Ã´Ã¥Ã©Ã±
     ok, val = pcall(function()
         if type(sampGetRakclientInterface) ~= 'function' then return nil end
         local iface = sampGetRakclientInterface()
         if iface == nil or iface == 0 then return nil end
-        -- òèïè÷íûé îôôñåò float packetlossLastSecond â ñòàòèñòèêå (ýâðèñòèêà)
+        -- Ã²Ã¨Ã¯Ã¨Ã·Ã­Ã»Ã© Ã®Ã´Ã´Ã±Ã¥Ã² float packetlossLastSecond Ã¢ Ã±Ã²Ã Ã²Ã¨Ã±Ã²Ã¨ÃªÃ¥ (Ã½Ã¢Ã°Ã¨Ã±Ã²Ã¨ÃªÃ )
         local ptr = memory.getuint32(iface, true)
         if not ptr or ptr == 0 then return nil end
-        local loss = memory.getfloat(ptr + 0x34C, true) -- ÷àñòî âñòðå÷àåòñÿ íà R1/R3
+        local loss = memory.getfloat(ptr + 0x34C, true) -- Ã·Ã Ã±Ã²Ã® Ã¢Ã±Ã²Ã°Ã¥Ã·Ã Ã¥Ã²Ã±Ã¿ Ã­Ã  R1/R3
         if type(loss) == 'number' and loss >= 0 and loss <= 100 then
             return loss
         end
@@ -1601,7 +1601,7 @@ local watermark_frame = imgui.OnFrame(
             local pmin = imgui.ImVec2(pos.x, pos.y)
             local pmax = imgui.ImVec2(pos.x + win_w, pos.y + win_h)
 
-            -- glow âîêðóã WM (åñëè âêëþ÷åíî â íàñòðîéêàõ)
+            -- glow Ã¢Ã®ÃªÃ°Ã³Ã£ WM (Ã¥Ã±Ã«Ã¨ Ã¢ÃªÃ«Ã¾Ã·Ã¥Ã­Ã® Ã¢ Ã­Ã Ã±Ã²Ã°Ã®Ã©ÃªÃ Ãµ)
             if session_cfg.settings.window_glow_enabled then
                 local time = os.clock() * 2.5
                 local pulse = math.sin(time) * 0.5 + 0.5
@@ -1617,7 +1617,7 @@ local watermark_frame = imgui.OnFrame(
                 end
             end
 
-            -- ôîí
+            -- Ã´Ã®Ã­
             local bg = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(0.05, 0.06, 0.09, 0.92 * a))
             dl:AddRectFilled(pmin, pmax, bg, 7.0)
 
@@ -1631,7 +1631,7 @@ local watermark_frame = imgui.OnFrame(
                 accent_line, 1.25
             )
 
-            -- ÷àñòèöû âíóòðè WM (åñëè âêëþ÷åíû)
+            -- Ã·Ã Ã±Ã²Ã¨Ã¶Ã» Ã¢Ã­Ã³Ã²Ã°Ã¨ WM (Ã¥Ã±Ã«Ã¨ Ã¢ÃªÃ«Ã¾Ã·Ã¥Ã­Ã»)
             if session_cfg.settings.particles_enabled then
                 local time = os.clock()
                 for i = 1, 5 do
@@ -1800,7 +1800,7 @@ function update_ui.draw()
         if update_ui.stage == "idle" then
             imgui.Dummy(imgui.ImVec2(0, 18))
             imgui.SetWindowFontScale(1.25)
-            local title = u8"Îáíîâëåíèå"
+            local title = u8"ÃŽÃ¡Ã­Ã®Ã¢Ã«Ã¥Ã­Ã¨Ã¥"
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(title).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), title)
             imgui.SetWindowFontScale(1.0)
@@ -1811,7 +1811,7 @@ function update_ui.draw()
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), info)
 
             imgui.Dummy(imgui.ImVec2(0, 8))
-            local hint = u8"Äîñòóïíà íîâàÿ âåðñèÿ ñêðèïòà"
+            local hint = u8"Ã„Ã®Ã±Ã²Ã³Ã¯Ã­Ã  Ã­Ã®Ã¢Ã Ã¿ Ã¢Ã¥Ã°Ã±Ã¨Ã¿ Ã±ÃªÃ°Ã¨Ã¯Ã²Ã "
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(hint).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), hint)
 
@@ -1841,7 +1841,7 @@ function update_ui.draw()
             draw_list:AddRectFilled(p_min, p_max, imgui.ColorConvertFloat4ToU32(imgui.ImVec4(bg_r, bg_g, bg_b, bg_a * sa)), 10.0)
             draw_list:AddRect(p_min, p_max, imgui.ColorConvertFloat4ToU32(imgui.ImVec4(bor_r, bor_g, bor_b, lerp(0.3, 1.0, update_ui.btn_alpha) * sa)), 10.0, 15, 1.2)
 
-            local btn_text = u8"Îáíîâèòü"
+            local btn_text = u8"ÃŽÃ¡Ã­Ã®Ã¢Ã¨Ã²Ã¼"
             local tsz = imgui.CalcTextSize(btn_text)
             draw_list:AddText(
                 imgui.ImVec2(p_min.x + (base_size.x - tsz.x) / 2, p_min.y + (base_size.y - tsz.y) / 2),
@@ -1856,7 +1856,7 @@ function update_ui.draw()
             draw_spinner(draw_list, spinner_center, 18.0, 3.0, spinner_color)
             imgui.Dummy(imgui.ImVec2(0, 30))
             imgui.SetWindowFontScale(1.1)
-            local txt = u8"Çàãðóçêà îáíîâëåíèÿ..."
+            local txt = u8"Ã‡Ã Ã£Ã°Ã³Ã§ÃªÃ  Ã®Ã¡Ã­Ã®Ã¢Ã«Ã¥Ã­Ã¨Ã¿..."
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), txt)
             imgui.SetWindowFontScale(1.0)
@@ -1873,7 +1873,7 @@ function update_ui.draw()
             draw_list:AddLine(imgui.ImVec2(circle_center.x - 1.5, circle_center.y + 4.5), imgui.ImVec2(circle_center.x + 6.5, circle_center.y - 4.5), white_col, 2.5)
             imgui.Dummy(imgui.ImVec2(0, 30))
             imgui.SetWindowFontScale(1.1)
-            local txt = u8"Óñïåøíî! Ïåðåçàãðóçêà..."
+            local txt = u8"Ã“Ã±Ã¯Ã¥Ã¸Ã­Ã®! ÃÃ¥Ã°Ã¥Ã§Ã Ã£Ã°Ã³Ã§ÃªÃ ..."
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), txt)
             imgui.SetWindowFontScale(1.0)
@@ -1881,12 +1881,12 @@ function update_ui.draw()
         elseif update_ui.stage == "fail" then
             imgui.Dummy(imgui.ImVec2(0, 55))
             imgui.SetWindowFontScale(1.15)
-            local txt = u8"Îøèáêà çàãðóçêè"
+            local txt = u8"ÃŽÃ¸Ã¨Ã¡ÃªÃ  Ã§Ã Ã£Ã°Ã³Ã§ÃªÃ¨"
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(1.0, 0.4, 0.4, sa), txt)
             imgui.SetWindowFontScale(1.0)
             imgui.Dummy(imgui.ImVec2(0, 12))
-            local sub = u8"Ïîïðîáóéòå åù¸ ðàç"
+            local sub = u8"ÃÃ®Ã¯Ã°Ã®Ã¡Ã³Ã©Ã²Ã¥ Ã¥Ã¹Â¸ Ã°Ã Ã§"
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(sub).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), sub)
         end
