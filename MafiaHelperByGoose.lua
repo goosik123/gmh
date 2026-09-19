@@ -163,8 +163,18 @@ local update_ui = {
     stage = 'idle',
     timer = 0.0,
     stage_alpha = 0.0,
-    btn_alpha = 0.0
+    btn_alpha = 0.0,
+    pending = nil,
+    load_progress = 0.0,
+    available = false
 }
+
+local function is_update_locked()
+    -- lock until update is applied (even if window was closed)
+    return update_ui and update_ui.available == true
+end
+
+local force_show_update  -- forward declaration (defined after menu)
 
 local menu = {
     show = false,
@@ -322,6 +332,10 @@ local function CustomSliderFloat(str_id, label, p_val, v_min, v_max, size)
 end
 
 local function toggle_menu()
+    if is_update_locked() then
+        force_show_update()
+        return
+    end
     if auth.show then
         auth.show = false
         return
@@ -530,10 +544,47 @@ end
 local function close_all()
     auth.show = false
     menu.show = false
+    -- can hide update window, but available stays true -> cannot open menu
     if update_ui and update_ui.stage ~= "loading" and update_ui.stage ~= "success" then
         update_ui.show = false
     end
 end
+
+force_show_update = function()
+    if not update_ui.available then return end
+    if update_ui.stage == "loading" or update_ui.stage == "success" then
+        update_ui.show = true
+        return
+    end
+    update_ui.show = true
+    update_ui.stage = "idle"
+    update_ui.stage_alpha = 0.0
+    update_ui.btn_alpha = 0.0
+    auth.show = false
+    menu.show = false
+end
+
+local function open_mhg()
+    -- if update required: always show update window instead of menu/auth
+    if is_update_locked() then
+        force_show_update()
+        return
+    end
+    if auth.show then
+        close_all()
+        return
+    end
+    if session_cfg.session.is_logged then
+        toggle_menu()
+    else
+        auth.show = true
+        auth.stage = 'idle'
+        auth.stage_alpha = 0.0
+        ffi.fill(auth.password, ffi.sizeof(auth.password))
+        shake_timer = 0.0
+    end
+end
+
 
 local function draw_close_button(win_width, alpha)
     local t = get_theme()
@@ -549,6 +600,9 @@ local function draw_close_button(win_width, alpha)
 end
 
 function auth.draw()
+    if is_update_locked() then
+        auth.show = false
+    end
     auth.alpha = lerp(auth.alpha, auth.show and 1.0 or 0.0, 0.12)
     if auth.alpha < 0.01 then return end
     
@@ -736,6 +790,9 @@ function auth.draw()
 end
 
 function menu.draw()
+    if is_update_locked() then
+        menu.show = false
+    end
     menu.alpha = lerp(menu.alpha, menu.show and 1.0 or 0.0, 0.12)
     if menu.alpha < 0.01 then return end
     
@@ -1752,6 +1809,7 @@ local function check_update()
         if parse_version(ver) <= parse_version(SCRIPT_VERSION) then return end
 
         update_ui.remote_ver = ver
+        update_ui.available = true
         update_ui.stage = "idle"
         update_ui.stage_alpha = 0.0
         update_ui.timer = 0.0
@@ -1762,10 +1820,12 @@ local function check_update()
 end
 
 local function start_script_update()
-    if update_ui.stage == "loading" then return end
+    if update_ui.stage == "loading" or update_ui.stage == "success" then return end
     update_ui.stage = "loading"
     update_ui.stage_alpha = 0.0
     update_ui.timer = os.clock()
+    update_ui.pending = nil
+    update_ui.load_progress = 0.0
 
     local tmp = mhg_dir .. "\\mhg_update_tmp.lua"
     local path = thisScript().path
@@ -1773,16 +1833,13 @@ local function start_script_update()
     downloadUrlToFile(SCRIPT_URL .. "?t=" .. os.time(), tmp, function(id, status)
         if status == 6 and copy_file_bin(tmp, path) then
             pcall(os.remove, tmp)
-            update_ui.stage = "success"
-            update_ui.stage_alpha = 0.0
-            update_ui.timer = os.clock()
+            update_ui.pending = "success"
         else
-            update_ui.stage = "fail"
-            update_ui.stage_alpha = 0.0
-            update_ui.timer = os.clock()
+            update_ui.pending = "fail"
         end
     end)
 end
+
 
 function update_ui.draw()
     update_ui.alpha = lerp(update_ui.alpha, update_ui.show and 1.0 or 0.0, 0.12)
@@ -1817,14 +1874,24 @@ function update_ui.draw()
         update_ui.stage_alpha = lerp(update_ui.stage_alpha, 1.0, 0.12)
         local sa = update_ui.alpha * update_ui.stage_alpha
 
-        if update_ui.stage == "success" then
-            if now - update_ui.timer >= 0.9 then
+        if update_ui.stage == "loading" then
+            local elapsed = now - update_ui.timer
+            local target_p = math.min(1.0, elapsed / 3.0)
+            update_ui.load_progress = lerp(update_ui.load_progress or 0, target_p, 0.10)
+            if update_ui.pending and elapsed >= 3.0 then
+                update_ui.stage = update_ui.pending
+                update_ui.pending = nil
+                update_ui.stage_alpha = 0.0
+                update_ui.timer = now
+            end
+        elseif update_ui.stage == "success" then
+            if now - update_ui.timer >= 3.0 then
                 update_ui.show = false
                 update_ui.stage = "idle"
                 schedule_reload()
             end
         elseif update_ui.stage == "fail" then
-            if now - update_ui.timer >= 2.5 then
+            if now - update_ui.timer >= 3.0 then
                 update_ui.stage = "idle"
                 update_ui.stage_alpha = 0.0
             end
@@ -1883,16 +1950,32 @@ function update_ui.draw()
             )
 
         elseif update_ui.stage == "loading" then
-            imgui.Dummy(imgui.ImVec2(0, 45))
-            local spinner_center = imgui.ImVec2(pos.x + 170, pos.y + 90)
+            imgui.Dummy(imgui.ImVec2(0, 36))
+            local spinner_center = imgui.ImVec2(pos.x + 170, pos.y + 78)
             local spinner_color = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.accent[1], t.accent[2], t.accent[3], sa))
             draw_spinner(draw_list, spinner_center, 18.0, 3.0, spinner_color)
-            imgui.Dummy(imgui.ImVec2(0, 30))
+
+            -- progress bar under spinner
+            local bar_w, bar_h = 200.0, 6.0
+            local bx = pos.x + (340 - bar_w) / 2
+            local by = pos.y + 110
+            local bg_col = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.bg_idle[1], t.bg_idle[2], t.bg_idle[3], 0.55 * sa))
+            local fill_col = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.accent[1], t.accent[2], t.accent[3], 0.85 * sa))
+            local bor_col = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.bor_hover[1], t.bor_hover[2], t.bor_hover[3], 0.5 * sa))
+            draw_list:AddRectFilled(imgui.ImVec2(bx, by), imgui.ImVec2(bx + bar_w, by + bar_h), bg_col, 3.0)
+            local fw = bar_w * math.max(0.02, math.min(1.0, update_ui.load_progress or 0))
+            draw_list:AddRectFilled(imgui.ImVec2(bx, by), imgui.ImVec2(bx + fw, by + bar_h), fill_col, 3.0)
+            draw_list:AddRect(imgui.ImVec2(bx, by), imgui.ImVec2(bx + bar_w, by + bar_h), bor_col, 3.0, 15, 1.0)
+
+            imgui.Dummy(imgui.ImVec2(0, 48))
             imgui.SetWindowFontScale(1.1)
             local txt = u8"Загрузка обновления..."
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), txt)
             imgui.SetWindowFontScale(1.0)
+            local pct = string.format("%d%%", math.floor((update_ui.load_progress or 0) * 100 + 0.5))
+            imgui.SetCursorPosX((340 - imgui.CalcTextSize(pct).x) / 2)
+            imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), pct)
 
         elseif update_ui.stage == "success" then
             imgui.Dummy(imgui.ImVec2(0, 45))
@@ -1993,17 +2076,7 @@ function main()
     check_update()
 
     sampRegisterChatCommand('mhg', function()
-        if auth.show then
-            close_all()
-        elseif session_cfg.session.is_logged then
-            toggle_menu()
-        else
-            auth.show = true
-            auth.stage = 'idle'
-            auth.stage_alpha = 0.0
-            ffi.fill(auth.password, ffi.sizeof(auth.password))
-            shake_timer = 0.0
-        end
+        open_mhg()
     end)
 
     while true do
@@ -2021,22 +2094,16 @@ function main()
         end
 
         if isKeyJustPressed(vkeys.VK_F12) and not sampIsChatInputActive() and not sampIsDialogActive() then
-            if auth.show then
-                close_all()
-            elseif session_cfg.session.is_logged then
-                toggle_menu()
-            else
-                auth.show = true
-                auth.stage = 'idle'
-                auth.stage_alpha = 0.0
-                ffi.fill(auth.password, ffi.sizeof(auth.password))
-                shake_timer = 0.0
-            end
+            open_mhg()
         end
 
         if (auth.show or menu.show or update_ui.show) and isKeyJustPressed(vkeys.VK_ESCAPE) then
-            close_all()
-            consumeWindowMessage(true, false)
+            if update_ui.show and (update_ui.stage == "loading" or update_ui.stage == "success") then
+                -- cannot close during update
+            else
+                close_all()
+                consumeWindowMessage(true, false)
+            end
         end
     end
 end
