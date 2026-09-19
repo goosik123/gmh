@@ -6,7 +6,7 @@ local inicfg = require 'inicfg'
 local lfs = require 'lfs'
 local memory = require 'memory'
 
-encoding.default = 'CP1251'
+encoding.default = 'UTF-8'
 u8 = encoding.UTF8
 
 ffi.cdef[[
@@ -27,7 +27,7 @@ local ACCOUNTS_FILE = mhg_dir .. "\\arz_accounts.txt"
 local AVATAR_FILE = mhg_dir .. "\\mhg_avatar.jpg"
 local CONFIG_FILE = "MHG\\MHG_session.ini"
 
--- === Auto-update (GitHub) ===
+-- === Автообновление (GitHub) ===
 local SCRIPT_VERSION = "1.0.1"
 local VERSION_URL = "https://raw.githubusercontent.com/goosik123/gmh/main/version.txt"
 local SCRIPT_URL = "https://raw.githubusercontent.com/goosik123/gmh/main/MafiaHelperByGoose.lua"
@@ -64,7 +64,7 @@ local input_anim_w = 0.0
 
 local themes = {
     [1] = {
-        name = u8"Ôèîëåòîâûé",
+        name = u8"Фиолетовый",
         text = imgui.ImVec4(0.78, 0.55, 1.00, 1.00),
         text_muted = imgui.ImVec4(0.55, 0.40, 0.75, 0.75),
         accent = {0.78, 0.55, 1.00},
@@ -76,7 +76,7 @@ local themes = {
         bor_act = {0.78, 0.45, 1.00}
     },
     [2] = {
-        name = u8"Ñåðûé",
+        name = u8"Серый",
         text = imgui.ImVec4(0.95, 0.95, 0.95, 1.00),
         text_muted = imgui.ImVec4(0.70, 0.70, 0.70, 0.75),
         accent = {0.95, 0.95, 0.95},
@@ -88,7 +88,7 @@ local themes = {
         bor_act = {0.80, 0.80, 0.80}
     },
     [3] = {
-        name = u8"Áèðþçîâûé",
+        name = u8"Бирюзовый",
         text = imgui.ImVec4(0.25, 0.88, 0.82, 1.00),
         text_muted = imgui.ImVec4(0.20, 0.60, 0.55, 0.75),
         accent = {0.25, 0.88, 0.82},
@@ -100,7 +100,7 @@ local themes = {
         bor_act = {0.25, 0.75, 0.70}
     },
     [4] = {
-        name = u8"Çåë¸íûé",
+        name = u8"Зелёный",
         text = imgui.ImVec4(0.40, 0.90, 0.40, 1.00),
         text_muted = imgui.ImVec4(0.30, 0.60, 0.30, 0.75),
         accent = {0.40, 0.90, 0.40},
@@ -112,7 +112,7 @@ local themes = {
         bor_act = {0.40, 0.80, 0.40}
     },
     [5] = {
-        name = u8"Æ¸ëòûé",
+        name = u8"Жёлтый",
         text = imgui.ImVec4(1.00, 0.82, 0.20, 1.00),
         text_muted = imgui.ImVec4(0.70, 0.58, 0.15, 0.75),
         accent = {1.00, 0.82, 0.20},
@@ -124,7 +124,7 @@ local themes = {
         bor_act = {1.00, 0.80, 0.20}
     },
     [6] = {
-        name = u8"Êðàñíûé",
+        name = u8"Красный",
         text = imgui.ImVec4(1.00, 0.35, 0.35, 1.00),
         text_muted = imgui.ImVec4(0.70, 0.25, 0.25, 0.75),
         accent = {1.00, 0.35, 0.35},
@@ -145,7 +145,7 @@ local auth = {
     show = false,
     alpha = 0.0,
     password = imgui.new.char[256](),
-    status = u8'Îæèäàíèå...',
+    status = u8'Ожидание...',
     accounts = {},
     account_map = {},
     loaded = false,
@@ -179,13 +179,13 @@ local menu = {
 local user_avatar_texture = nil
 
 local function get_my_nick()
-    if not isSampAvailable() then return 'Unknown' end
+    if not isSampAvailable() then return u8'Неизвестно' end
     local result, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
     if result then
         local nick = sampGetPlayerNickname(id)
         if nick then return nick:gsub("%b[]", "") end
     end
-    return 'Unknown'
+    return u8'Неизвестно'
 end
 
 local function load_user_avatar()
@@ -226,7 +226,7 @@ local action_btn_hover_alpha = 0.0
 local eye_hover_alpha = 0.0
 local wm_hover_alpha = 0.0
 local slider_hover_alphas = {}
--- Fill progress for smooth checkbox/radio animations
+-- прогресс анимации чекбоксов
 local asp_fill_progress = session_cfg.settings.asp_enabled and 1.0 or 0.0
 local particles_fill_progress = session_cfg.settings.particles_enabled and 1.0 or 0.0
 local tabfx_fill_progress = session_cfg.settings.tab_effects_enabled and 1.0 or 0.0
@@ -248,9 +248,9 @@ local shake_timer = 0.0
 
 local function apply_asp(value)
     if not value then value = 1.0 end
-    -- îñíîâíîé àäðåñ àñïåêòà (ïîñëå NOP ïàò÷åé â main)
+    -- основной адрес аспекта (после NOP патчей в main)
     memory.setfloat(0xC3EFA4, value, true)
-    -- äîï. àäðåñà, êîòîðûå íåêîòîðûå êëèåíòû/ôèêñû ïåðåçàïèñûâàþò
+    -- доп. адреса, которые некоторые клиенты/фиксы перезаписывают
     pcall(function()
         memory.setfloat(0xC17044, value, true)
     end)
@@ -606,7 +606,7 @@ function auth.draw()
         if auth.stage == 'idle' then
             imgui.Dummy(imgui.ImVec2(0, 16))
             imgui.SetWindowFontScale(1.25)
-            local title = u8'Àâòîðèçàöèÿ'
+            local title = u8'Авторизация'
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(title).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * current_stage_alpha), title)
             imgui.SetWindowFontScale(1.0)
@@ -617,7 +617,7 @@ function auth.draw()
             imgui.PopItemWidth()
 
             imgui.Dummy(imgui.ImVec2(0, 14))
-            local btn_text = auth.loaded and u8'Âîéòè' or u8'Çàãðóçêà...'
+            local btn_text = auth.loaded and u8'Войти' or u8'Загрузка...'
             local base_size = imgui.ImVec2(240, 40)
             
             local shake_offset_x = 0.0
@@ -687,7 +687,7 @@ function auth.draw()
 
             imgui.SetCursorPosY(195)
             imgui.SetWindowFontScale(0.82)
-            local info_str = string.format("%s %s  |  Caps Lock: %s", u8'ßçûê:', get_keyboard_layout_name(), is_caps_active() and u8'Âêë' or u8'Âûêë')
+            local info_str = string.format("%s %s  |  Капс: %s", u8'Язык:', get_keyboard_layout_name(), is_caps_active() and u8'Вкл' or u8'Выкл')
             local info_w = imgui.CalcTextSize(info_str).x
             imgui.SetCursorPosX((340 - info_w) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * current_stage_alpha), info_str)
@@ -700,7 +700,7 @@ function auth.draw()
             draw_spinner(draw_list, spinner_center, 18.0, 3.0, spinner_color)
             imgui.Dummy(imgui.ImVec2(0, 30))
             imgui.SetWindowFontScale(1.1)
-            local txt = u8'Ïðîâåðêà àêêàóíòà...'
+            local txt = u8'Проверка аккаунта...'
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * current_stage_alpha), txt)
             imgui.SetWindowFontScale(1.0)
@@ -724,7 +724,7 @@ function auth.draw()
 
             imgui.Dummy(imgui.ImVec2(0, 30))
             imgui.SetWindowFontScale(1.1)
-            local txt = u8'Óñïåøíî!'
+            local txt = u8'Успешно!'
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * current_stage_alpha), txt)
             imgui.SetWindowFontScale(1.0)
@@ -754,9 +754,9 @@ function menu.draw()
     local nick_sz = imgui.CalcTextSize(current_user_nick).x
     
     local tabs = {
-        { name = u8"Îñíîâíîå" },
-        { name = u8"Äîïîëíèòåëüíî" },
-        { name = u8"Íàñòðîéêè" }
+        { name = u8"Основное" },
+        { name = u8"Дополнительно" },
+        { name = u8"Настройки" }
     }
     
     local tab_btn_w = 120
@@ -852,7 +852,7 @@ function menu.draw()
                 local fill_p = tab_fill_progress[i]
                 local hover_p = tab_hover_alphas[i]
 
-                local effects_enabled = true -- àíèìàöèÿ âêëàäîê âñåãäà âêëþ÷åíà
+                local effects_enabled = true -- анимация вкладок всегда включена
 
                 local t_bg_r = lerp(lerp(t.bg_idle[1], t.bg_hover[1], hover_p), t.bg_act[1], fill_p)
                 local t_bg_g = lerp(lerp(t.bg_idle[2], t.bg_hover[2], hover_p), t.bg_act[2], fill_p)
@@ -996,9 +996,9 @@ function menu.draw()
 
                 local eye_text
                 if show_avatar_url then
-                    eye_text = u8"Ñêðûòü"
+                    eye_text = u8"Скрыть"
                 else
-                    eye_text = has_link_inserted and u8"Èçìåíèòü" or u8"Àâàòàð"
+                    eye_text = has_link_inserted and u8"Изменить" or u8"Аватар"
                 end
 
                 local eyt_sz = imgui.CalcTextSize(eye_text)
@@ -1067,7 +1067,7 @@ function menu.draw()
 
                 local lo_min = p_logout
                 local lo_max = imgui.ImVec2(p_logout.x + logout_btn_sz.x, p_logout.y + logout_btn_sz.y)
-                -- ßðêàÿ êíîïêà âûõîäà (êðàñíûé àêöåíò)
+                -- Яркая кнопка выхода (красный акцент)
                 local lo_bg_r = lerp(0.55, 0.90, logout_hover_alpha)
                 local lo_bg_g = lerp(0.12, 0.18, logout_hover_alpha)
                 local lo_bg_b = lerp(0.12, 0.18, logout_hover_alpha)
@@ -1083,7 +1083,7 @@ function menu.draw()
                 draw_list:AddRectFilled(lo_min, lo_max, lo_bg_col, 6.0)
                 draw_list:AddRect(lo_min, lo_max, lo_bor_col, 6.0, 15, 1.4)
 
-                local logout_text = u8"Âûéòè"
+                local logout_text = u8"Выйти"
                 local lot_sz = imgui.CalcTextSize(logout_text)
                 local lot_pos = imgui.ImVec2(lo_min.x + (logout_btn_sz.x - lot_sz.x) / 2, lo_min.y + (logout_btn_sz.y - lot_sz.y) / 2)
                 local lot_col = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(1.00, 0.92, 0.92, lerp(0.85, 1.00, logout_hover_alpha) * current_content_alpha))
@@ -1101,7 +1101,7 @@ function menu.draw()
                     imgui.PushStyleColor(imgui.Col.FrameBgActive, imgui.ImVec4(t.bg_act[1], t.bg_act[2], t.bg_act[3], 0.50 * current_content_alpha))
                     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(t.text.x, t.text.y, t.text.z, 0.85 * current_content_alpha))
 
-                    imgui.InputTextWithHint("##avatar_url_btm", u8"Âñòàâü ññûëêó íà àâàòàð...", avatar_url_buf, ffi.sizeof(avatar_url_buf))
+                    imgui.InputTextWithHint("##avatar_url_btm", u8"Вставь ссылку на аватар...", avatar_url_buf, ffi.sizeof(avatar_url_buf))
                     
                     if session_cfg.settings.custom_avatar_url ~= current_input_text then
                         session_cfg.settings.custom_avatar_url = current_input_text
@@ -1116,7 +1116,7 @@ function menu.draw()
                     imgui.SameLine(0, 6)
 
                     local has_text_in_input = current_input_text ~= ""
-                    local action_btn_text = has_text_in_input and u8"Î÷èñòèòü" or u8"Îáíîâèòü"
+                    local action_btn_text = has_text_in_input and u8"Очистить" or u8"Обновить"
                     
                     local p_action = imgui.GetCursorScreenPos()
                     local action_btn_sz = imgui.ImVec2(75, 24)
@@ -1166,9 +1166,9 @@ function menu.draw()
         end
 
         local tabs_titles = {
-            { name = u8"Îñíîâíîå" },
-            { name = u8"Äîïîëíèòåëüíî" },
-            { name = u8"Íàñòðîéêè" }
+            { name = u8"Основное" },
+            { name = u8"Дополнительно" },
+            { name = u8"Настройки" }
         }
         
         local title_alpha = 1.0 - menu.sidebar_alpha
@@ -1191,9 +1191,9 @@ function menu.draw()
         imgui.BeginChild("##content_area", imgui.ImVec2(size.x - 50, content_area_h), false, imgui.WindowFlags.NoScrollbar)
         
         if menu.current_tab == 1 then
-            imgui.TextColored(t.text_muted, u8"Äîáðî ïîæàëîâàòü â MHG. Çäåñü ïîÿâÿòñÿ áûñòðûå äåéñòâèÿ è ñòàòóñ.")
+            imgui.TextColored(t.text_muted, u8"Добро пожаловать в MHG. Здесь появятся быстрые действия и статус.")
         elseif menu.current_tab == 2 then
-            imgui.TextColored(t.text_muted, u8"ASP:")
+            imgui.TextColored(t.text_muted, u8"Аспект:")
             imgui.Dummy(imgui.ImVec2(0, 5))
 
             local settings_btn_size = imgui.ImVec2(218, 32)
@@ -1231,7 +1231,7 @@ function menu.draw()
             draw_list:AddRectFilled(p_asp_chk, imgui.ImVec2(p_asp_chk.x + settings_btn_size.x, p_asp_chk.y + settings_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(a_bg_r, a_bg_g, a_bg_b, a_bg_a * menu.alpha)), 6.0)
             draw_list:AddRect(p_asp_chk, imgui.ImVec2(p_asp_chk.x + settings_btn_size.x, p_asp_chk.y + settings_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(a_bor_r, a_bor_g, a_bor_b, a_bor_a * menu.alpha)), 6.0, 15, 1.2)
 
-            local asp_lbl = u8"ASP"
+            local asp_lbl = u8"Аспект"
             local asp_lbl_sz = imgui.CalcTextSize(asp_lbl)
             local asp_lbl_pos = imgui.ImVec2(p_asp_chk.x + (settings_btn_size.x - asp_lbl_sz.x) / 2, p_asp_chk.y + (settings_btn_size.y - asp_lbl_sz.y) / 2)
             local asp_text_val = lerp(lerp(0.65, 0.85, asp_chk_hover_alpha), 1.00, asp_fill_val)
@@ -1239,7 +1239,7 @@ function menu.draw()
 
             if session_cfg.settings.asp_enabled then
                 imgui.SameLine(0, 10)
-                CustomSliderFloat("##asp_slider", "ASP", asp_val_buf, 0.5, 2.0, settings_btn_size)
+                CustomSliderFloat("##asp_slider", u8"Аспект", asp_val_buf, 0.5, 2.0, settings_btn_size)
 
                 if session_cfg.settings.asp_value ~= asp_val_buf[0] then
                     session_cfg.settings.asp_value = asp_val_buf[0]
@@ -1274,13 +1274,13 @@ function menu.draw()
                 draw_list:AddRectFilled(p_reset, imgui.ImVec2(p_reset.x + reset_btn_size.x, p_reset.y + reset_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(r_bg_r, r_bg_g, r_bg_b, r_bg_a * menu.alpha)), 6.0)
                 draw_list:AddRect(p_reset, imgui.ImVec2(p_reset.x + reset_btn_size.x, p_reset.y + reset_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(r_bor_r, r_bor_g, r_bor_b, r_bor_a * menu.alpha)), 6.0, 15, 1.2)
 
-                local reset_txt = u8"Ñáðîñ"
+                local reset_txt = u8"Сброс"
                 local r_txt_sz = imgui.CalcTextSize(reset_txt)
                 local r_txt_pos = imgui.ImVec2(p_reset.x + (reset_btn_size.x - r_txt_sz.x) / 2, p_reset.y + (reset_btn_size.y - r_txt_sz.y) / 2)
                 draw_list:AddText(r_txt_pos, imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.text.x, t.text.y, t.text.z, lerp(0.65, 1.00, reset_btn_hover_alpha) * menu.alpha)), reset_txt)
             end
         elseif menu.current_tab == 3 then
-            imgui.TextColored(t.text_muted, u8"Òåìà îôîðìëåíèÿ:")
+            imgui.TextColored(t.text_muted, u8"Тема оформления:")
             imgui.Dummy(imgui.ImVec2(0, 5))
 
             local theme_btn_size = imgui.ImVec2(218, 32)
@@ -1337,7 +1337,7 @@ function menu.draw()
             end
             imgui.Dummy(imgui.ImVec2(0, 10))
 
-            imgui.TextColored(t.text_muted, u8"Ýôôåêòû èíòåðôåéñà:")
+            imgui.TextColored(t.text_muted, u8"Эффекты интерфейса:")
             imgui.Dummy(imgui.ImVec2(0, 5))
 
             local settings_btn_size = imgui.ImVec2(218, 32)
@@ -1376,7 +1376,7 @@ function menu.draw()
             draw_list:AddRectFilled(c_min, c_max, c_bg_col, 6.0)
             draw_list:AddRect(c_min, c_max, c_bor_col, 6.0, 15, 1.2)
 
-            local status_str = u8"×àñòèöû"
+            local status_str = u8"Частицы"
             local chk_txt_sz = imgui.CalcTextSize(status_str)
             local chk_txt_pos = imgui.ImVec2(c_min.x + (settings_btn_size.x - chk_txt_sz.x) / 2, c_min.y + (settings_btn_size.y - chk_txt_sz.y) / 2)
             local chk_text_col_val = lerp(lerp(0.65, 0.85, checkbox_hover_alpha), 1.00, chk_fill_val)
@@ -1385,7 +1385,7 @@ function menu.draw()
 
             imgui.SameLine(0, settings_spacing_x)
 
-            -- Watermark (âìåñòî ïåðåêëþ÷àòåëÿ àíèìàöèè âêëàäîê)
+            -- Водяной знак
             local p_wmset = imgui.GetCursorScreenPos()
             if imgui.InvisibleButton("##custom_watermark_chk", settings_btn_size) then
                 session_cfg.settings.watermark_enabled = not session_cfg.settings.watermark_enabled
@@ -1410,7 +1410,7 @@ function menu.draw()
             draw_list:AddRectFilled(p_wmset, imgui.ImVec2(p_wmset.x + settings_btn_size.x, p_wmset.y + settings_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(w_bg_r, w_bg_g, w_bg_b, w_bg_a * menu.alpha)), 6.0)
             draw_list:AddRect(p_wmset, imgui.ImVec2(p_wmset.x + settings_btn_size.x, p_wmset.y + settings_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(w_bor_r, w_bor_g, w_bor_b, w_bor_a * menu.alpha)), 6.0, 15, 1.2)
 
-            local wm_lbl = u8"Watermark"
+            local wm_lbl = u8"Водяной знак"
             local wm_lbl_sz = imgui.CalcTextSize(wm_lbl)
             local wm_lbl_pos = imgui.ImVec2(p_wmset.x + (settings_btn_size.x - wm_lbl_sz.x) / 2, p_wmset.y + (settings_btn_size.y - wm_lbl_sz.y) / 2)
             local wm_text_val = lerp(lerp(0.65, 0.85, wm_hover_alpha), 1.00, wm_fill_val)
@@ -1449,7 +1449,7 @@ function menu.draw()
             draw_list:AddRectFilled(p_glow, imgui.ImVec2(p_glow.x + settings_btn_size.x, p_glow.y + settings_btn_size.y), g_bg_col, 6.0)
             draw_list:AddRect(p_glow, imgui.ImVec2(p_glow.x + settings_btn_size.x, p_glow.y + settings_btn_size.y), g_bor_col, 6.0, 15, 1.2)
 
-            local glow_status_str = u8"Ñâå÷åíèå îêíà"
+            local glow_status_str = u8"Свечение окна"
             local glow_txt_sz = imgui.CalcTextSize(glow_status_str)
             local glow_txt_pos = imgui.ImVec2(p_glow.x + (settings_btn_size.x - glow_txt_sz.x) / 2, p_glow.y + (settings_btn_size.y - glow_txt_sz.y) / 2)
             local glow_text_val = lerp(lerp(0.65, 0.85, glow_btn_hover_alpha), 1.00, glow_fill_val)
@@ -1467,9 +1467,9 @@ function menu.draw()
     imgui.PopStyleVar(5)
 end
 
--- === Watermark overlay ===
+-- === Водяной знак ===
 
--- packet loss (ïîêàçûâàåòñÿ â WM òîëüêî ïðè çíà÷åíèè >= 1)
+-- потери пакетов (в WM только если >= 1)
 local function get_packet_loss()
     if not isSampAvailable() then return 0 end
     local res, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
@@ -1495,15 +1495,15 @@ local function get_packet_loss()
         return math.floor(val + 0.5)
     end
 
-    -- fallback: RakNet statistics (packetlossLastSecond), åñëè äîñòóïåí èíòåðôåéñ
+    -- fallback: RakNet statistics (packetlossLastSecond), если доступен интерфейс
     ok, val = pcall(function()
         if type(sampGetRakclientInterface) ~= 'function' then return nil end
         local iface = sampGetRakclientInterface()
         if iface == nil or iface == 0 then return nil end
-        -- òèïè÷íûé îôôñåò float packetlossLastSecond â ñòàòèñòèêå (ýâðèñòèêà)
+        -- типичный оффсет float packetlossLastSecond в статистике (эвристика)
         local ptr = memory.getuint32(iface, true)
         if not ptr or ptr == 0 then return nil end
-        local loss = memory.getfloat(ptr + 0x34C, true) -- ÷àñòî âñòðå÷àåòñÿ íà R1/R3
+        local loss = memory.getfloat(ptr + 0x34C, true) -- часто встречается на R1/R3
         if type(loss) == 'number' and loss >= 0 and loss <= 100 then
             return loss
         end
@@ -1540,17 +1540,17 @@ local watermark_frame = imgui.OnFrame(
         local pl = get_packet_loss()
 
         local parts = {
-            "MHG",
+            "МХГ",
             nick,
-            string.format("%d fps", fps),
-            string.format("%d ms", ping)
+            string.format("%d ФПС", fps),
+            string.format("%d мс", ping)
         }
         if pl >= 1 then
-            table.insert(parts, string.format("PL %d%%", pl))
+            table.insert(parts, string.format("ПЛ %d%%", pl))
         end
         table.insert(parts, pc_time)
 
-        -- gap between items + width of vertical separator line zone
+        -- отступ и зона разделителя
         local item_gap = 4.0
         local sep_zone = 5.0  -- space reserved for | between items
 
@@ -1571,7 +1571,7 @@ local watermark_frame = imgui.OnFrame(
         local target_w = content_w + pad_x * 2
         local target_h = content_h + pad_y * 2
 
-        -- smooth resize when FPS digits / PL appear
+        -- плавное изменение размера WM
         if wm_anim_w < 1.0 then
             wm_anim_w = target_w
             wm_anim_h = target_h
@@ -1601,7 +1601,7 @@ local watermark_frame = imgui.OnFrame(
             local pmin = imgui.ImVec2(pos.x, pos.y)
             local pmax = imgui.ImVec2(pos.x + win_w, pos.y + win_h)
 
-            -- glow âîêðóã WM (åñëè âêëþ÷åíî â íàñòðîéêàõ)
+            -- glow вокруг WM (если включено в настройках)
             if session_cfg.settings.window_glow_enabled then
                 local time = os.clock() * 2.5
                 local pulse = math.sin(time) * 0.5 + 0.5
@@ -1617,7 +1617,7 @@ local watermark_frame = imgui.OnFrame(
                 end
             end
 
-            -- ôîí
+            -- фон
             local bg = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(0.05, 0.06, 0.09, 0.92 * a))
             dl:AddRectFilled(pmin, pmax, bg, 7.0)
 
@@ -1631,7 +1631,7 @@ local watermark_frame = imgui.OnFrame(
                 accent_line, 1.25
             )
 
-            -- ÷àñòèöû âíóòðè WM (åñëè âêëþ÷åíû)
+            -- частицы внутри WM (если включены)
             if session_cfg.settings.particles_enabled then
                 local time = os.clock()
                 for i = 1, 5 do
@@ -1655,7 +1655,7 @@ local watermark_frame = imgui.OnFrame(
             for i, part in ipairs(parts) do
                 if i > 1 then
                     x = x + item_gap
-                    -- animated vertical separator
+                    -- анимированный разделитель
                     local line_x = x + sep_zone * 0.5
                     local full_y1 = pos.y + pad_y * 0.55
                     local full_y2 = pos.y + win_h - pad_y * 0.55
@@ -1674,7 +1674,7 @@ local watermark_frame = imgui.OnFrame(
                 local col = text_col
                 if i == 1 then
                     col = accent_col
-                elseif pl >= 1 and part:find("^PL ") then
+                elseif pl >= 1 and part:find("^ПЛ ") then
                     col = pl_col
                 end
                 dl:AddText(imgui.ImVec2(x, y), col, part)
@@ -1700,13 +1700,38 @@ frame.HideCursor = false
 
 
 local function parse_version(s)
-    local a, b, c = tostring(s or ""):match("(%d+)%.(%d+)%.(%d+)")
+    s = tostring(s or "")
+    s = s:gsub("\r", ""):gsub("\n", "")
+    s = s:match("^%s*(.-)%s*$") or s
+    local bom = string.char(239, 187, 191)
+    if s:sub(1, 3) == bom then s = s:sub(4) end
+    local a, b, c = s:match("^(%d+)%.(%d+)%.(%d+)$")
     if not a then
-        a, b = tostring(s or ""):match("(%d+)%.(%d+)")
+        a, b = s:match("^(%d+)%.(%d+)$")
         c = 0
     end
     if not a then return 0 end
     return tonumber(a) * 10000 + tonumber(b or 0) * 100 + tonumber(c or 0)
+end
+
+local function copy_file_bin(src, dst)
+    local i = io.open(src, "rb")
+    if not i then return false end
+    local content = i:read("*a")
+    i:close()
+    if not content or #content < 50 then return false end
+    local o = io.open(dst, "wb")
+    if not o then return false end
+    o:write(content)
+    o:close()
+    return true
+end
+
+local function do_reload_script()
+    pcall(function() thisScript():reload() end)
+    pcall(function()
+        if type(reloadScripts) == "function" then reloadScripts() end
+    end)
 end
 
 local function check_update()
@@ -1715,14 +1740,15 @@ local function check_update()
         if status ~= 6 then return end
         local f = io.open(tmp, "r")
         if not f then return end
-        local remote = (f:read("*l") or ""):match("^%s*(.-)%s*$")
+        local remote = f:read("*a") or ""
         f:close()
         pcall(os.remove, tmp)
 
-        if remote == "" then return end
         if parse_version(remote) <= parse_version(SCRIPT_VERSION) then return end
+        local ver = tostring(remote):match("(%d+%.%d+%.%d+)") or tostring(remote):match("(%d+%.%d+)") or ""
+        if ver == "" then return end
 
-        update_ui.remote_ver = remote
+        update_ui.remote_ver = ver
         update_ui.stage = "idle"
         update_ui.stage_alpha = 0.0
         update_ui.timer = 0.0
@@ -1738,16 +1764,27 @@ local function start_script_update()
     update_ui.stage_alpha = 0.0
     update_ui.timer = os.clock()
 
+    local tmp = mhg_dir .. "\\mhg_update_tmp.lua"
     local path = thisScript().path
-    downloadUrlToFile(SCRIPT_URL .. "?t=" .. os.time(), path, function(id, status)
-        if status == 6 then
+
+    downloadUrlToFile(SCRIPT_URL .. "?t=" .. os.time(), tmp, function(id, status)
+        if status == 6 and copy_file_bin(tmp, path) then
+            pcall(os.remove, tmp)
             update_ui.stage = "success"
             update_ui.stage_alpha = 0.0
             update_ui.timer = os.clock()
         else
-            update_ui.stage = "fail"
-            update_ui.stage_alpha = 0.0
-            update_ui.timer = os.clock()
+            downloadUrlToFile(SCRIPT_URL .. "?t=" .. os.time(), path, function(id2, status2)
+                if status2 == 6 then
+                    update_ui.stage = "success"
+                    update_ui.stage_alpha = 0.0
+                    update_ui.timer = os.clock()
+                else
+                    update_ui.stage = "fail"
+                    update_ui.stage_alpha = 0.0
+                    update_ui.timer = os.clock()
+                end
+            end)
         end
     end)
 end
@@ -1788,7 +1825,7 @@ function update_ui.draw()
         if update_ui.stage == "success" then
             if now - update_ui.timer >= 0.9 then
                 update_ui.show = false
-                pcall(function() thisScript():reload() end)
+                do_reload_script()
             end
         elseif update_ui.stage == "fail" then
             if now - update_ui.timer >= 2.5 then
@@ -1800,18 +1837,18 @@ function update_ui.draw()
         if update_ui.stage == "idle" then
             imgui.Dummy(imgui.ImVec2(0, 18))
             imgui.SetWindowFontScale(1.25)
-            local title = u8"Îáíîâëåíèå"
+            local title = u8"Обновление"
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(title).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), title)
             imgui.SetWindowFontScale(1.0)
 
             imgui.Dummy(imgui.ImVec2(0, 14))
-            local info = string.format("v%s  ?  v%s", SCRIPT_VERSION, update_ui.remote_ver)
+            local info = string.format("v%s  ->  v%s", SCRIPT_VERSION, update_ui.remote_ver)
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(info).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), info)
 
             imgui.Dummy(imgui.ImVec2(0, 8))
-            local hint = u8"Äîñòóïíà íîâàÿ âåðñèÿ ñêðèïòà"
+            local hint = u8"Доступна новая версия скрипта"
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(hint).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), hint)
 
@@ -1841,7 +1878,7 @@ function update_ui.draw()
             draw_list:AddRectFilled(p_min, p_max, imgui.ColorConvertFloat4ToU32(imgui.ImVec4(bg_r, bg_g, bg_b, bg_a * sa)), 10.0)
             draw_list:AddRect(p_min, p_max, imgui.ColorConvertFloat4ToU32(imgui.ImVec4(bor_r, bor_g, bor_b, lerp(0.3, 1.0, update_ui.btn_alpha) * sa)), 10.0, 15, 1.2)
 
-            local btn_text = u8"Îáíîâèòü"
+            local btn_text = u8"Обновить"
             local tsz = imgui.CalcTextSize(btn_text)
             draw_list:AddText(
                 imgui.ImVec2(p_min.x + (base_size.x - tsz.x) / 2, p_min.y + (base_size.y - tsz.y) / 2),
@@ -1856,7 +1893,7 @@ function update_ui.draw()
             draw_spinner(draw_list, spinner_center, 18.0, 3.0, spinner_color)
             imgui.Dummy(imgui.ImVec2(0, 30))
             imgui.SetWindowFontScale(1.1)
-            local txt = u8"Çàãðóçêà îáíîâëåíèÿ..."
+            local txt = u8"Загрузка обновления..."
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), txt)
             imgui.SetWindowFontScale(1.0)
@@ -1873,7 +1910,7 @@ function update_ui.draw()
             draw_list:AddLine(imgui.ImVec2(circle_center.x - 1.5, circle_center.y + 4.5), imgui.ImVec2(circle_center.x + 6.5, circle_center.y - 4.5), white_col, 2.5)
             imgui.Dummy(imgui.ImVec2(0, 30))
             imgui.SetWindowFontScale(1.1)
-            local txt = u8"Óñïåøíî! Ïåðåçàãðóçêà..."
+            local txt = u8"Успешно! Перезагрузка..."
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), txt)
             imgui.SetWindowFontScale(1.0)
@@ -1881,12 +1918,12 @@ function update_ui.draw()
         elseif update_ui.stage == "fail" then
             imgui.Dummy(imgui.ImVec2(0, 55))
             imgui.SetWindowFontScale(1.15)
-            local txt = u8"Îøèáêà çàãðóçêè"
+            local txt = u8"Ошибка загрузки"
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
             imgui.TextColored(imgui.ImVec4(1.0, 0.4, 0.4, sa), txt)
             imgui.SetWindowFontScale(1.0)
             imgui.Dummy(imgui.ImVec2(0, 12))
-            local sub = u8"Ïîïðîáóéòå åù¸ ðàç"
+            local sub = u8"Попробуйте ещё раз"
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(sub).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), sub)
         end
