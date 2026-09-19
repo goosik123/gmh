@@ -27,7 +27,7 @@ local ACCOUNTS_FILE = mhg_dir .. "\\arz_accounts.txt"
 local AVATAR_FILE = mhg_dir .. "\\mhg_avatar.jpg"
 local CONFIG_FILE = "MHG\\MHG_session.ini"
 
--- === Автообновление (GitHub) ===
+-- === Auto-update (GitHub) ===
 local SCRIPT_VERSION = "1.0.1"
 local VERSION_URL = "https://raw.githubusercontent.com/goosik123/gmh/main/version.txt"
 local SCRIPT_URL = "https://raw.githubusercontent.com/goosik123/gmh/main/MafiaHelperByGoose.lua"
@@ -179,13 +179,13 @@ local menu = {
 local user_avatar_texture = nil
 
 local function get_my_nick()
-    if not isSampAvailable() then return u8'Неизвестно' end
+    if not isSampAvailable() then return 'Unknown' end
     local result, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
     if result then
         local nick = sampGetPlayerNickname(id)
         if nick then return nick:gsub("%b[]", "") end
     end
-    return u8'Неизвестно'
+    return 'Unknown'
 end
 
 local function load_user_avatar()
@@ -226,7 +226,7 @@ local action_btn_hover_alpha = 0.0
 local eye_hover_alpha = 0.0
 local wm_hover_alpha = 0.0
 local slider_hover_alphas = {}
--- прогресс анимации чекбоксов
+-- Fill progress for smooth checkbox/radio animations
 local asp_fill_progress = session_cfg.settings.asp_enabled and 1.0 or 0.0
 local particles_fill_progress = session_cfg.settings.particles_enabled and 1.0 or 0.0
 local tabfx_fill_progress = session_cfg.settings.tab_effects_enabled and 1.0 or 0.0
@@ -687,7 +687,7 @@ function auth.draw()
 
             imgui.SetCursorPosY(195)
             imgui.SetWindowFontScale(0.82)
-            local info_str = string.format("%s %s  |  Капс: %s", u8'Язык:', get_keyboard_layout_name(), is_caps_active() and u8'Вкл' or u8'Выкл')
+            local info_str = string.format("%s %s  |  Caps Lock: %s", u8'Язык:', get_keyboard_layout_name(), is_caps_active() and u8'Вкл' or u8'Выкл')
             local info_w = imgui.CalcTextSize(info_str).x
             imgui.SetCursorPosX((340 - info_w) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * current_stage_alpha), info_str)
@@ -1193,7 +1193,7 @@ function menu.draw()
         if menu.current_tab == 1 then
             imgui.TextColored(t.text_muted, u8"Добро пожаловать в MHG. Здесь появятся быстрые действия и статус.")
         elseif menu.current_tab == 2 then
-            imgui.TextColored(t.text_muted, u8"Аспект:")
+            imgui.TextColored(t.text_muted, u8"ASP:")
             imgui.Dummy(imgui.ImVec2(0, 5))
 
             local settings_btn_size = imgui.ImVec2(218, 32)
@@ -1231,7 +1231,7 @@ function menu.draw()
             draw_list:AddRectFilled(p_asp_chk, imgui.ImVec2(p_asp_chk.x + settings_btn_size.x, p_asp_chk.y + settings_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(a_bg_r, a_bg_g, a_bg_b, a_bg_a * menu.alpha)), 6.0)
             draw_list:AddRect(p_asp_chk, imgui.ImVec2(p_asp_chk.x + settings_btn_size.x, p_asp_chk.y + settings_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(a_bor_r, a_bor_g, a_bor_b, a_bor_a * menu.alpha)), 6.0, 15, 1.2)
 
-            local asp_lbl = u8"Аспект"
+            local asp_lbl = u8"ASP"
             local asp_lbl_sz = imgui.CalcTextSize(asp_lbl)
             local asp_lbl_pos = imgui.ImVec2(p_asp_chk.x + (settings_btn_size.x - asp_lbl_sz.x) / 2, p_asp_chk.y + (settings_btn_size.y - asp_lbl_sz.y) / 2)
             local asp_text_val = lerp(lerp(0.65, 0.85, asp_chk_hover_alpha), 1.00, asp_fill_val)
@@ -1239,7 +1239,7 @@ function menu.draw()
 
             if session_cfg.settings.asp_enabled then
                 imgui.SameLine(0, 10)
-                CustomSliderFloat("##asp_slider", u8"Аспект", asp_val_buf, 0.5, 2.0, settings_btn_size)
+                CustomSliderFloat("##asp_slider", "ASP", asp_val_buf, 0.5, 2.0, settings_btn_size)
 
                 if session_cfg.settings.asp_value ~= asp_val_buf[0] then
                     session_cfg.settings.asp_value = asp_val_buf[0]
@@ -1385,7 +1385,7 @@ function menu.draw()
 
             imgui.SameLine(0, settings_spacing_x)
 
-            -- Водяной знак
+            -- Watermark (вместо переключателя анимации вкладок)
             local p_wmset = imgui.GetCursorScreenPos()
             if imgui.InvisibleButton("##custom_watermark_chk", settings_btn_size) then
                 session_cfg.settings.watermark_enabled = not session_cfg.settings.watermark_enabled
@@ -1410,7 +1410,7 @@ function menu.draw()
             draw_list:AddRectFilled(p_wmset, imgui.ImVec2(p_wmset.x + settings_btn_size.x, p_wmset.y + settings_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(w_bg_r, w_bg_g, w_bg_b, w_bg_a * menu.alpha)), 6.0)
             draw_list:AddRect(p_wmset, imgui.ImVec2(p_wmset.x + settings_btn_size.x, p_wmset.y + settings_btn_size.y), imgui.ColorConvertFloat4ToU32(imgui.ImVec4(w_bor_r, w_bor_g, w_bor_b, w_bor_a * menu.alpha)), 6.0, 15, 1.2)
 
-            local wm_lbl = u8"Водяной знак"
+            local wm_lbl = u8"Watermark"
             local wm_lbl_sz = imgui.CalcTextSize(wm_lbl)
             local wm_lbl_pos = imgui.ImVec2(p_wmset.x + (settings_btn_size.x - wm_lbl_sz.x) / 2, p_wmset.y + (settings_btn_size.y - wm_lbl_sz.y) / 2)
             local wm_text_val = lerp(lerp(0.65, 0.85, wm_hover_alpha), 1.00, wm_fill_val)
@@ -1467,9 +1467,9 @@ function menu.draw()
     imgui.PopStyleVar(5)
 end
 
--- === Водяной знак ===
+-- === Watermark overlay ===
 
--- потери пакетов (в WM только если >= 1)
+-- packet loss (показывается в WM только при значении >= 1)
 local function get_packet_loss()
     if not isSampAvailable() then return 0 end
     local res, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
@@ -1540,17 +1540,17 @@ local watermark_frame = imgui.OnFrame(
         local pl = get_packet_loss()
 
         local parts = {
-            "МХГ",
+            "MHG",
             nick,
-            string.format("%d ФПС", fps),
-            string.format("%d мс", ping)
+            string.format("%d fps", fps),
+            string.format("%d ms", ping)
         }
         if pl >= 1 then
-            table.insert(parts, string.format("ПЛ %d%%", pl))
+            table.insert(parts, string.format("PL %d%%", pl))
         end
         table.insert(parts, pc_time)
 
-        -- отступ и зона разделителя
+        -- gap between items + width of vertical separator line zone
         local item_gap = 4.0
         local sep_zone = 5.0  -- space reserved for | between items
 
@@ -1571,7 +1571,7 @@ local watermark_frame = imgui.OnFrame(
         local target_w = content_w + pad_x * 2
         local target_h = content_h + pad_y * 2
 
-        -- плавное изменение размера WM
+        -- smooth resize when FPS digits / PL appear
         if wm_anim_w < 1.0 then
             wm_anim_w = target_w
             wm_anim_h = target_h
@@ -1655,7 +1655,7 @@ local watermark_frame = imgui.OnFrame(
             for i, part in ipairs(parts) do
                 if i > 1 then
                     x = x + item_gap
-                    -- анимированный разделитель
+                    -- animated vertical separator
                     local line_x = x + sep_zone * 0.5
                     local full_y1 = pos.y + pad_y * 0.55
                     local full_y2 = pos.y + win_h - pad_y * 0.55
@@ -1674,7 +1674,7 @@ local watermark_frame = imgui.OnFrame(
                 local col = text_col
                 if i == 1 then
                     col = accent_col
-                elseif pl >= 1 and part:find("^ПЛ ") then
+                elseif pl >= 1 and part:find("^PL ") then
                     col = pl_col
                 end
                 dl:AddText(imgui.ImVec2(x, y), col, part)
@@ -1703,8 +1703,6 @@ local function parse_version(s)
     s = tostring(s or "")
     s = s:gsub("\r", ""):gsub("\n", "")
     s = s:match("^%s*(.-)%s*$") or s
-    local bom = string.char(239, 187, 191)
-    if s:sub(1, 3) == bom then s = s:sub(4) end
     local a, b, c = s:match("^(%d+)%.(%d+)%.(%d+)$")
     if not a then
         a, b = s:match("^(%d+)%.(%d+)$")
@@ -1715,22 +1713,27 @@ local function parse_version(s)
 end
 
 local function copy_file_bin(src, dst)
-    local i = io.open(src, "rb")
-    if not i then return false end
-    local content = i:read("*a")
-    i:close()
-    if not content or #content < 50 then return false end
-    local o = io.open(dst, "wb")
-    if not o then return false end
-    o:write(content)
-    o:close()
-    return true
+    local ok, err = pcall(function()
+        local i = io.open(src, "rb")
+        if not i then error("open src") end
+        local content = i:read("*a")
+        i:close()
+        if not content or #content < 100 then error("empty") end
+        local o = io.open(dst, "wb")
+        if not o then error("open dst") end
+        o:write(content)
+        o:close()
+    end)
+    return ok
 end
 
-local function do_reload_script()
-    pcall(function() thisScript():reload() end)
+local function schedule_reload()
+    -- reload outside of imgui frame to avoid crash
     pcall(function()
-        if type(reloadScripts) == "function" then reloadScripts() end
+        lua_thread.create(function()
+            wait(700)
+            pcall(function() thisScript():reload() end)
+        end)
     end)
 end
 
@@ -1744,9 +1747,9 @@ local function check_update()
         f:close()
         pcall(os.remove, tmp)
 
-        if parse_version(remote) <= parse_version(SCRIPT_VERSION) then return end
-        local ver = tostring(remote):match("(%d+%.%d+%.%d+)") or tostring(remote):match("(%d+%.%d+)") or ""
-        if ver == "" then return end
+        local ver = tostring(remote):match("(%d+%.%d+%.%d+)") or tostring(remote):match("(%d+%.%d+)")
+        if not ver then return end
+        if parse_version(ver) <= parse_version(SCRIPT_VERSION) then return end
 
         update_ui.remote_ver = ver
         update_ui.stage = "idle"
@@ -1774,17 +1777,9 @@ local function start_script_update()
             update_ui.stage_alpha = 0.0
             update_ui.timer = os.clock()
         else
-            downloadUrlToFile(SCRIPT_URL .. "?t=" .. os.time(), path, function(id2, status2)
-                if status2 == 6 then
-                    update_ui.stage = "success"
-                    update_ui.stage_alpha = 0.0
-                    update_ui.timer = os.clock()
-                else
-                    update_ui.stage = "fail"
-                    update_ui.stage_alpha = 0.0
-                    update_ui.timer = os.clock()
-                end
-            end)
+            update_ui.stage = "fail"
+            update_ui.stage_alpha = 0.0
+            update_ui.timer = os.clock()
         end
     end)
 end
@@ -1825,7 +1820,8 @@ function update_ui.draw()
         if update_ui.stage == "success" then
             if now - update_ui.timer >= 0.9 then
                 update_ui.show = false
-                do_reload_script()
+                update_ui.stage = "idle"
+                schedule_reload()
             end
         elseif update_ui.stage == "fail" then
             if now - update_ui.timer >= 2.5 then
@@ -1843,7 +1839,7 @@ function update_ui.draw()
             imgui.SetWindowFontScale(1.0)
 
             imgui.Dummy(imgui.ImVec2(0, 14))
-            local info = string.format("v%s  ->  v%s", SCRIPT_VERSION, update_ui.remote_ver)
+            local info = string.format("v%s -> v%s", SCRIPT_VERSION, update_ui.remote_ver)
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(info).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), info)
 
