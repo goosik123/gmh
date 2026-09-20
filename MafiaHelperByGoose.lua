@@ -1826,26 +1826,51 @@ local function start_script_update()
     update_ui.timer = os.clock()
     update_ui.pending = nil
     update_ui.load_progress = 0.0
+    update_ui.script_data = nil
     update_ui.tmp_path = nil
 
-    -- download ONLY to temp — do NOT overwrite running script yet
-    -- (MoonLoader reloads immediately if .lua file changes on disk)
     local tmp = mhg_dir .. "\\mhg_update_tmp.lua"
-    downloadUrlToFile(SCRIPT_URL .. "?t=" .. os.time(), tmp, function(id, status)
-        if status == 6 then
+    -- download to temp only; keep bytes in memory so we can write after the 5s delay
+    downloadUrlToFile(SCRIPT_URL .. "?t=" .. tostring(os.time()), tmp, function(id, status)
+        local function try_read()
             local f = io.open(tmp, "rb")
-            if f then
-                local content = f:read("*a")
-                f:close()
-                if content and #content > 100 then
-                    update_ui.tmp_path = tmp
-                    update_ui.pending = "success"
-                    return
-                end
+            if not f then return false end
+            local content = f:read("*a")
+            f:close()
+            if content and #content > 200 then
+                update_ui.script_data = content
+                update_ui.tmp_path = tmp
+                update_ui.pending = "success"
+                return true
+            end
+            return false
+        end
+
+        -- try read on any completion-like status; also retry shortly after
+        if try_read() then return end
+
+        if status == 6 or status == 5 or status == 2 then
+            pcall(function()
+                lua_thread.create(function()
+                    wait(400)
+                    if update_ui.stage == "loading" and update_ui.pending == nil then
+                        if not try_read() then
+                            update_ui.pending = "fail"
+                            pcall(os.remove, tmp)
+                        end
+                    end
+                end)
+            end)
+            return
+        end
+
+        if status == 3 or status == 4 then
+            -- last chance: file may still exist
+            if not try_read() then
+                update_ui.pending = "fail"
+                pcall(os.remove, tmp)
             end
         end
-        update_ui.pending = "fail"
-        pcall(os.remove, tmp)
     end)
 end
 
@@ -1886,21 +1911,43 @@ function update_ui.draw()
             local elapsed = now - update_ui.timer
             local load_dur = 5.0
             update_ui.load_progress = math.max(0.0, math.min(1.0, elapsed / load_dur))
+            -- if download never answered after 5s + grace, fail
+            if update_ui.pending == nil and elapsed >= (load_dur + 8.0) then
+                update_ui.pending = "fail"
+            end
             -- wait full 5s animation; only then apply file + change stage
             if update_ui.pending ~= nil and elapsed >= load_dur then
                 local result = update_ui.pending
                 update_ui.pending = nil
-                if result == "success" and update_ui.tmp_path then
+                if result == "success" and update_ui.script_data and #update_ui.script_data > 200 then
                     local path = thisScript().path
-                    if copy_file_bin(update_ui.tmp_path, path) then
+                    local wrote = false
+                    local ok = pcall(function()
+                        local o = io.open(path, "wb")
+                        if not o then error("open") end
+                        o:write(update_ui.script_data)
+                        o:close()
+                        wrote = true
+                    end)
+                    if not wrote then
+                        -- fallback via temp copy
+                        if update_ui.tmp_path then
+                            wrote = copy_file_bin(update_ui.tmp_path, path)
+                        end
+                    end
+                    if update_ui.tmp_path then
                         pcall(os.remove, update_ui.tmp_path)
                         update_ui.tmp_path = nil
-                        update_ui.stage = "success"
-                    else
-                        update_ui.stage = "fail"
                     end
+                    update_ui.script_data = nil
+                    update_ui.stage = wrote and "success" or "fail"
                 else
                     update_ui.stage = "fail"
+                    if update_ui.tmp_path then
+                        pcall(os.remove, update_ui.tmp_path)
+                        update_ui.tmp_path = nil
+                    end
+                    update_ui.script_data = nil
                 end
                 update_ui.stage_alpha = 0.0
                 update_ui.timer = now
@@ -2026,13 +2073,19 @@ function update_ui.draw()
             imgui.SetWindowFontScale(1.0)
 
         elseif update_ui.stage == "fail" then
-            imgui.Dummy(imgui.ImVec2(0, 55))
-            imgui.SetWindowFontScale(1.15)
-            local txt = u8"Ошибка загрузки"
-            imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
-            imgui.TextColored(imgui.ImVec4(1.0, 0.4, 0.4, sa), txt)
+            imgui.Dummy(imgui.ImVec2(0, 40))
+            imgui.SetWindowFontScale(1.25)
+            local title = u8"Ошибка"
+            imgui.SetCursorPosX((340 - imgui.CalcTextSize(title).x) / 2)
+            imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), title)
             imgui.SetWindowFontScale(1.0)
-            imgui.Dummy(imgui.ImVec2(0, 12))
+
+            imgui.Dummy(imgui.ImVec2(0, 14))
+            local txt = u8"Не удалось загрузить обновление"
+            imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
+            imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), txt)
+
+            imgui.Dummy(imgui.ImVec2(0, 8))
             local sub = u8"Попробуйте ещё раз"
             imgui.SetCursorPosX((340 - imgui.CalcTextSize(sub).x) / 2)
             imgui.TextColored(imgui.ImVec4(t.text_muted.x, t.text_muted.y, t.text_muted.z, t.text_muted.w * sa), sub)
