@@ -28,7 +28,7 @@ local AVATAR_FILE = mhg_dir .. "\\mhg_avatar.jpg"
 local CONFIG_FILE = "MHG\\MHG_session.ini"
 
 -- === Auto-update (GitHub) ===
-local SCRIPT_VERSION = "1.0.0"
+local SCRIPT_VERSION = "1.0.1"
 local VERSION_URL = "https://raw.githubusercontent.com/goosik123/gmh/main/version.txt"
 local SCRIPT_URL = "https://raw.githubusercontent.com/goosik123/gmh/main/MafiaHelperByGoose.lua"
 
