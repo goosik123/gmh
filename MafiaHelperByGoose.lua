@@ -1954,7 +1954,7 @@ function update_ui.draw()
             end
         elseif update_ui.stage == "success" then
             local elapsed = now - update_ui.timer
-            if elapsed >= 2.0 and update_ui.show then
+            if elapsed >= 3.0 and update_ui.show then
                 update_ui.show = false
             end
             if (not update_ui.show) and update_ui.alpha < 0.03 then
@@ -2056,20 +2056,22 @@ function update_ui.draw()
             draw_list:AddText(imgui.ImVec2(cx - txt_sz.x * 0.5, pos.y + 140), txt_col, txt)
 
         elseif update_ui.stage == "success" then
-            imgui.Dummy(imgui.ImVec2(0, 45))
+            local circle_radius = 18.0
             local circle_center = imgui.ImVec2(pos.x + 170, pos.y + 90)
             local fill = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.bg_act[1], t.bg_act[2], t.bg_act[3], 0.70 * sa))
             local border = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.accent[1], t.accent[2], t.accent[3], sa))
-            draw_list:AddCircleFilled(circle_center, 18.0, fill)
-            draw_list:AddCircle(circle_center, 18.0, border, 20, 1.5)
+            draw_list:AddCircleFilled(circle_center, circle_radius, fill)
+            draw_list:AddCircle(circle_center, circle_radius, border, 20, 1.5)
             local white_col = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(1, 1, 1, sa))
             draw_list:AddLine(imgui.ImVec2(circle_center.x - 6, circle_center.y - 1), imgui.ImVec2(circle_center.x - 1.5, circle_center.y + 4.5), white_col, 2.5)
             draw_list:AddLine(imgui.ImVec2(circle_center.x - 1.5, circle_center.y + 4.5), imgui.ImVec2(circle_center.x + 6.5, circle_center.y - 4.5), white_col, 2.5)
-            imgui.Dummy(imgui.ImVec2(0, 30))
+
             imgui.SetWindowFontScale(1.1)
             local txt = u8"Успешно! Перезагрузка..."
-            imgui.SetCursorPosX((340 - imgui.CalcTextSize(txt).x) / 2)
-            imgui.TextColored(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa), txt)
+            local txt_sz = imgui.CalcTextSize(txt)
+            local txt_col = imgui.ColorConvertFloat4ToU32(imgui.ImVec4(t.text.x, t.text.y, t.text.z, t.text.w * sa))
+            local txt_pos = imgui.ImVec2(circle_center.x - txt_sz.x * 0.5, circle_center.y + circle_radius + 22.0)
+            draw_list:AddText(txt_pos, txt_col, txt)
             imgui.SetWindowFontScale(1.0)
 
         elseif update_ui.stage == "fail" then
